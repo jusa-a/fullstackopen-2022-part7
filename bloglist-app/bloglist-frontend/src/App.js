@@ -8,7 +8,6 @@ import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 
 import loginService from './services/login'
-import userService from './services/user'
 
 import { setNotification } from './reducers/notificationReducer'
 import { initializeUser, login, logout } from './reducers/userReducer'
@@ -46,7 +45,6 @@ const App = () => {
 
     const handleLogout = async () => {
         dispatch(logout())
-        userService.clearUser()
         notify('logged out')
     }
 
