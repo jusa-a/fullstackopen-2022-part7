@@ -106,11 +106,11 @@ describe('Blog app', function () {
                 cy.get('.blog').eq(2).as('third').contains('view').click()
 
                 cy.get('@third').contains('like').click()
-                cy.wait(50)
+                cy.wait(100)
                 cy.get('@third').contains('like').click()
-                cy.wait(50)
+                cy.wait(100)
                 cy.get('@second').contains('like').click()
-                cy.wait(50)
+                cy.wait(100)
 
                 cy.get('.blog').eq(0).should('contain', 'third blog')
                 cy.get('.blog').eq(1).should('contain', 'second blog')

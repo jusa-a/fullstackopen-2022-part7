@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 
 import Blog from './components/Blog'
 import Notification from './components/Notification'
@@ -9,16 +10,28 @@ import BlogForm from './components/BlogForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
+import { setNotification } from './reducers/notificationReducer'
+import {
+    initializeBlogs,
+    createBlog,
+    deleteBlog,
+    likeBlog,
+} from './reducers/blogReducer'
+
 const App = () => {
-    const [blogs, setBlogs] = useState([])
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [user, setUser] = useState(null)
-    const [notification, setNotification] = useState({})
+
+    const blogs = useSelector((state) => {
+        return state.blogs
+    })
+
+    const dispatch = useDispatch()
 
     useEffect(() => {
-        blogService.getAll().then((blogs) => setBlogs(blogs))
-    }, [])
+        dispatch(initializeBlogs())
+    }, [dispatch])
 
     useEffect(() => {
         const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -47,14 +60,8 @@ const App = () => {
             setUser(user)
             setUsername('')
             setPassword('')
-        } catch (exception) {
-            setNotification({
-                message: exception.response.data.error,
-                type: 'error',
-            })
-            setTimeout(() => {
-                setNotification({})
-            }, 3000)
+        } catch (e) {
+            notify(e.response.data.error, 'error')
         }
     }
 
@@ -65,47 +72,30 @@ const App = () => {
     }
 
     const addBlog = (blogObject) => {
-        blogFormRef.current.toggleVisibility()
-        blogService
-            .create(blogObject)
-            .then((returnedBlog) => {
-                setBlogs(blogs.concat(returnedBlog))
-                setNotification({
-                    message: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
-                })
-                setTimeout(() => {
-                    setNotification({})
-                }, 3000)
+        dispatch(createBlog(blogObject))
+            .then(() => {
+                notify(
+                    `a new blog ${blogObject.title} by ${blogObject.author} added`
+                )
+                blogFormRef.current.toggleVisibility()
             })
-            .catch((error) => {
-                setNotification({
-                    message: error.response.data.error,
-                    type: 'error',
-                })
-                setTimeout(() => {
-                    setNotification({})
-                }, 3000)
+            .catch((e) => {
+                notify(e.response.data.error, 'error')
             })
     }
 
-    const deleteBlog = async (blog) => {
+    const removeBlog = async (blog) => {
         if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-            await blogService.remove(blog.id)
-            setBlogs(blogs.filter((b) => b.id !== blog.id))
+            dispatch(deleteBlog(blog.id))
         }
     }
 
-    const handleLike = async (blogObject) => {
-        const updatedBlog = await blogService.update(blogObject.id, {
-            likes: blogObject.likes + 1,
-        })
-        setBlogs(
-            blogs.map((blog) =>
-                blog.id !== blogObject.id
-                    ? blog
-                    : { ...blog, likes: updatedBlog.likes }
-            )
-        )
+    const like = async (blog) => {
+        dispatch(likeBlog(blog))
+    }
+
+    const notify = (message, type) => {
+        dispatch(setNotification({ message, type }, 3))
     }
 
     const blogFormRef = useRef()
@@ -121,15 +111,15 @@ const App = () => {
             <Togglable buttonLabel='new blog' ref={blogFormRef}>
                 <BlogForm createBlog={addBlog} />
             </Togglable>
-            {blogs
+            {[...blogs]
                 .sort((a, b) => b.likes - a.likes)
                 .map((blog) => (
                     <Blog
                         key={blog.id}
                         blog={blog}
                         user={user}
-                        handleLike={handleLike}
-                        deleteBlog={deleteBlog}
+                        handleLike={like}
+                        deleteBlog={removeBlog}
                     />
                 ))}
         </div>
@@ -137,7 +127,7 @@ const App = () => {
 
     return (
         <div>
-            <Notification notification={notification} />
+            <Notification />
             {user === null ? (
                 <LoginForm
                     username={username}

@@ -46,7 +46,8 @@ blogsRouter.put('/:id', async (req, res) => {
         req.params.id,
         { likes },
         { new: true }
-    )
+    ).populate('user', { username: 1, name: 1 })
+
     res.json(updatedBlog)
 })
 
