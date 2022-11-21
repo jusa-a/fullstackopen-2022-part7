@@ -6,6 +6,7 @@ import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import Blogs from './components/Blogs'
 import Users from './components/Users'
+import User from './components/User'
 
 import loginService from './services/login'
 
@@ -66,6 +67,7 @@ const App = () => {
             </div>
 
             <Routes>
+                <Route path={'/users/:id'} element={<User />} />
                 <Route path='/' element={<Blogs notify={notify} />} />
                 <Route path='/users' element={<Users />} />
             </Routes>
