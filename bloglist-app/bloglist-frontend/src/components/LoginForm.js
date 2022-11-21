@@ -1,22 +1,26 @@
+import { useState } from 'react'
 import PropTypes from 'prop-types'
 
-const LoginForm = ({
-    handleSubmit,
-    handleUsernameChange,
-    handlePasswordChange,
-    username,
-    password,
-}) => {
+const LoginForm = ({ onLogin }) => {
+    const [username, setUsername] = useState('')
+    const [password, setPassword] = useState('')
+
+    const handleSubmit = (event) => {
+        event.preventDefault()
+        onLogin(username, password)
+    }
+
     return (
         <form onSubmit={handleSubmit} id='login-form'>
-            <h2>log in to application</h2>
+            <h2>Log in to application</h2>
+
             <div>
                 username{' '}
                 <input
                     id='username'
                     type='text'
                     value={username}
-                    onChange={handleUsernameChange}
+                    onChange={({ target }) => setUsername(target.value)}
                 />
             </div>
             <div>
@@ -25,7 +29,7 @@ const LoginForm = ({
                     id='password'
                     type='password'
                     value={password}
-                    onChange={handlePasswordChange}
+                    onChange={({ target }) => setPassword(target.value)}
                 />
             </div>
             <button id='login-button' type='submit'>
@@ -36,11 +40,7 @@ const LoginForm = ({
 }
 
 LoginForm.propTypes = {
-    handleSubmit: PropTypes.func.isRequired,
-    handleUsernameChange: PropTypes.func.isRequired,
-    handlePasswordChange: PropTypes.func.isRequired,
-    username: PropTypes.string.isRequired,
-    password: PropTypes.string.isRequired,
+    onLogin: PropTypes.func.isRequired,
 }
 
 export default LoginForm

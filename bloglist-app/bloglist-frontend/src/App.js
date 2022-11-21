@@ -7,8 +7,8 @@ import Togglable from './components/Togglable'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 
-import blogService from './services/blogs'
 import loginService from './services/login'
+import userService from './services/user'
 
 import { setNotification } from './reducers/notificationReducer'
 import {
@@ -19,56 +19,44 @@ import {
 } from './reducers/blogReducer'
 
 const App = () => {
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
-    const [user, setUser] = useState(null)
-
-    const blogs = useSelector((state) => {
-        return state.blogs
-    })
-
     const dispatch = useDispatch()
+
+    const [user, setUser] = useState(null)
 
     useEffect(() => {
         dispatch(initializeBlogs())
     }, [dispatch])
 
+    const blogs = useSelector((state) => {
+        return state.blogs
+    })
+
     useEffect(() => {
-        const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
-        if (loggedUserJSON) {
-            const user = JSON.parse(loggedUserJSON)
-            setUser(user)
-            blogService.setToken(user.token)
-        }
+        const loggedUser = userService.getUser()
+        loggedUser && setUser(loggedUser)
     }, [])
 
-    const handleLogin = async (event) => {
-        event.preventDefault()
-
-        try {
-            const user = await loginService.login({
+    const handleLogin = (username, password) => {
+        loginService
+            .login({
                 username,
                 password,
             })
-
-            window.localStorage.setItem(
-                'loggedBlogappUser',
-                JSON.stringify(user)
-            )
-
-            blogService.setToken(user.token)
-            setUser(user)
-            setUsername('')
-            setPassword('')
-        } catch (e) {
-            notify(e.response.data.error, 'error')
-        }
+            .then((user) => {
+                console.log(user)
+                setUser(user)
+                userService.setUser(user)
+                notify(`${user.name} logged in!`)
+            })
+            .catch((e) => {
+                notify(e.response.data.error, 'error')
+            })
     }
 
     const handleLogout = async () => {
-        window.localStorage.removeItem('loggedBlogappUser')
         setUser(null)
-        blogService.setToken('')
+        userService.clearUser()
+        notify('logged out')
     }
 
     const addBlog = (blogObject) => {
@@ -128,21 +116,7 @@ const App = () => {
     return (
         <div>
             <Notification />
-            {user === null ? (
-                <LoginForm
-                    username={username}
-                    password={password}
-                    handleUsernameChange={({ target }) =>
-                        setUsername(target.value)
-                    }
-                    handlePasswordChange={({ target }) =>
-                        setPassword(target.value)
-                    }
-                    handleSubmit={handleLogin}
-                />
-            ) : (
-                blogView()
-            )}
+            {user === null ? <LoginForm onLogin={handleLogin} /> : blogView()}
         </div>
     )
 }
