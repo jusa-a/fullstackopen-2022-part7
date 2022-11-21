@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import Blog from './components/Blog'
@@ -11,6 +11,7 @@ import loginService from './services/login'
 import userService from './services/user'
 
 import { setNotification } from './reducers/notificationReducer'
+import { initializeUser, login, logout } from './reducers/userReducer'
 import {
     initializeBlogs,
     createBlog,
@@ -21,20 +22,12 @@ import {
 const App = () => {
     const dispatch = useDispatch()
 
-    const [user, setUser] = useState(null)
-
     useEffect(() => {
+        dispatch(initializeUser())
         dispatch(initializeBlogs())
     }, [dispatch])
 
-    const blogs = useSelector((state) => {
-        return state.blogs
-    })
-
-    useEffect(() => {
-        const loggedUser = userService.getUser()
-        loggedUser && setUser(loggedUser)
-    }, [])
+    const { user, blogs } = useSelector((state) => state)
 
     const handleLogin = (username, password) => {
         loginService
@@ -43,9 +36,7 @@ const App = () => {
                 password,
             })
             .then((user) => {
-                console.log(user)
-                setUser(user)
-                userService.setUser(user)
+                dispatch(login(user))
                 notify(`${user.name} logged in!`)
             })
             .catch((e) => {
@@ -54,7 +45,7 @@ const App = () => {
     }
 
     const handleLogout = async () => {
-        setUser(null)
+        dispatch(logout())
         userService.clearUser()
         notify('logged out')
     }
