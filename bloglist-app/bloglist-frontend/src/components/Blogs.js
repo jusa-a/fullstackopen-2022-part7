@@ -1,18 +1,14 @@
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { useDispatch } from 'react-redux'
 
 import BlogList from './BlogList'
 import Togglable from './Togglable'
 import BlogForm from './BlogForm'
 
-import { initializeBlogs, createBlog } from '../reducers/blogReducer'
+import { createBlog } from '../reducers/blogReducer'
 
 const Blogs = ({ notify }) => {
     const dispatch = useDispatch()
-
-    useEffect(() => {
-        dispatch(initializeBlogs())
-    }, [dispatch])
 
     const addBlog = (blogObject) => {
         dispatch(createBlog(blogObject))
