@@ -57,7 +57,7 @@ blogsRouter.post('/:id/comments', async (req, res) => {
     const blog = await Blog.findByIdAndUpdate(
         req.params.id,
         { $push: { comments: comment } },
-        { new: true }
+        { new: true, runValidators: true }
     ).populate('user', { username: 1, name: 1 })
 
     res.status(201).json(blog)

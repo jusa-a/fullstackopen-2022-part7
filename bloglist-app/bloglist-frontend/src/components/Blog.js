@@ -1,14 +1,25 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { deleteBlog, likeBlog } from '../reducers/blogReducer'
+import { deleteBlog, likeBlog, comment } from '../reducers/blogReducer'
 
-const Blog = () => {
+const Blog = ({ notify }) => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const id = useParams().id
     const { blogs, user } = useSelector((state) => state)
     const blog = blogs.find((b) => b.id === id)
+
+    const [newComment, setNewComment] = useState('')
+
+    const addComment = (event) => {
+        event.preventDefault()
+        dispatch(comment(newComment, blog)).catch(() => {
+            notify('comment is empty', 'error')
+        })
+        setNewComment('')
+    }
 
     const remove = async (blog) => {
         if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
@@ -45,6 +56,15 @@ const Blog = () => {
 
             <div>
                 <h3>comments</h3>
+
+                <form onSubmit={addComment}>
+                    <input
+                        value={newComment}
+                        onChange={({ target }) => setNewComment(target.value)}
+                    />
+                    <button type='submit'>add comment</button>
+                </form>
+
                 <ul>
                     {[...blog.comments].map((comment, i) => (
                         <li key={i}>{comment}</li>

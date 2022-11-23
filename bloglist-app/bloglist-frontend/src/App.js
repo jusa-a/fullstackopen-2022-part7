@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 
 import Menu from './components/Menu'
 import Notification from './components/Notification'
@@ -11,6 +11,7 @@ import Users from './components/Users'
 import User from './components/User'
 
 import loginService from './services/login'
+import userService from './services/user'
 
 import { setNotification } from './reducers/notificationReducer'
 import { initializeUser, login, logout } from './reducers/userReducer'
@@ -19,6 +20,7 @@ import { initializeBlogs } from './reducers/blogReducer'
 
 const App = () => {
     const dispatch = useDispatch()
+    const navigate = useNavigate()
 
     useEffect(() => {
         dispatch(initializeUser())
@@ -29,7 +31,11 @@ const App = () => {
     useEffect(() => {
         if (user !== null) {
             dispatch(initializeUsers())
-            dispatch(initializeBlogs())
+            dispatch(initializeBlogs()).catch((e) => {
+                notify(e.response.data.error, 'error')
+                userService.clearUser()
+                navigate('/')
+            })
         }
     }, [user])
 
@@ -75,7 +81,7 @@ const App = () => {
             <Notification />
 
             <Routes>
-                <Route path={'/blogs/:id'} element={<Blog />} />
+                <Route path={'/blogs/:id'} element={<Blog notify={notify} />} />
                 <Route path={'/users/:id'} element={<User />} />
                 <Route path='/' element={<Blogs notify={notify} />} />
                 <Route path='/users' element={<Users />} />
