@@ -32,13 +32,25 @@ const Blog = () => {
             <h1>
                 {blog.title}, {blog.author}
             </h1>
-            <a href={blog.url}>{blog.url}</a>
+
             <div>
-                {blog.likes} likes{' '}
-                <button onClick={() => like(blog)}>like</button>
+                <a href={blog.url}>{blog.url}</a>
+                <div>
+                    {blog.likes} likes{' '}
+                    <button onClick={() => like(blog)}>like</button>
+                </div>
+                <div>added by {blog.user.name}</div>
+                {blog.user.username === user.username && removeButton()}
             </div>
-            <div>added by {blog.user.name}</div>
-            {blog.user.username === user.username && removeButton()}
+
+            <div>
+                <h3>comments</h3>
+                <ul>
+                    {[...blog.comments].map((comment, i) => (
+                        <li key={i}>{comment}</li>
+                    ))}
+                </ul>
+            </div>
         </div>
     )
 }

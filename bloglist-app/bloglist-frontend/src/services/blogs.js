@@ -12,7 +12,7 @@ const config = () => {
 }
 
 const getAll = () => {
-    const request = axios.get(baseUrl)
+    const request = axios.get(baseUrl, config())
     return request.then((response) => response.data)
 }
 
@@ -22,7 +22,7 @@ const create = async (newObject) => {
 }
 
 const update = async (id, newObject) => {
-    const response = await axios.put(`${baseUrl}/${id}`, newObject)
+    const response = await axios.put(`${baseUrl}/${id}`, newObject, config())
     return response.data
 }
 

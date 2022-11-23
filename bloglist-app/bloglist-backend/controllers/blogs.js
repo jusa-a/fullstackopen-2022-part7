@@ -2,7 +2,7 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const { userExtractor } = require('../utils/middleware')
 
-blogsRouter.get('/', async (req, res) => {
+blogsRouter.get('/', userExtractor, async (req, res) => {
     const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
     res.json(blogs)
 })
@@ -39,7 +39,7 @@ blogsRouter.post('/', userExtractor, async (req, res) => {
     res.status(201).json(savedBlog)
 })
 
-blogsRouter.put('/:id', async (req, res) => {
+blogsRouter.put('/:id', userExtractor, async (req, res) => {
     const { likes } = req.body
 
     const updatedBlog = await Blog.findByIdAndUpdate(
@@ -49,6 +49,18 @@ blogsRouter.put('/:id', async (req, res) => {
     ).populate('user', { username: 1, name: 1 })
 
     res.json(updatedBlog)
+})
+
+blogsRouter.post('/:id/comments', async (req, res) => {
+    const { comment } = req.body
+
+    const blog = await Blog.findByIdAndUpdate(
+        req.params.id,
+        { $push: { comments: comment } },
+        { new: true }
+    ).populate('user', { username: 1, name: 1 })
+
+    res.status(201).json(blog)
 })
 
 module.exports = blogsRouter
