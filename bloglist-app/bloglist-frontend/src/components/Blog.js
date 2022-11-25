@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 
+import { Form, ListGroup, Button } from 'react-bootstrap'
+
 import { deleteBlog, likeBlog, comment } from '../reducers/blogReducer'
 
 const Blog = ({ notify }) => {
@@ -33,43 +35,68 @@ const Blog = ({ notify }) => {
     }
 
     const removeButton = () => (
-        <button onClick={() => remove(blog)}>remove</button>
+        <Button
+            variant='outline-danger rounded-pill'
+            onClick={() => remove(blog)}
+        >
+            remove
+        </Button>
     )
 
     if (!blog) return null
 
     return (
-        <div className='blog'>
-            <h1>
+        <div className='blog container'>
+            <h3 className='fw-normal pb-2'>
                 {blog.title}, {blog.author}
-            </h1>
+            </h3>
 
             <div>
-                <a href={blog.url}>{blog.url}</a>
-                <div>
-                    {blog.likes} likes{' '}
-                    <button onClick={() => like(blog)}>like</button>
+                <div className='pb-3'>
+                    <a className='text-decoration-none' href={blog.url}>
+                        {blog.url}
+                    </a>
                 </div>
-                <div>added by {blog.user.name}</div>
-                {blog.user.username === user.username && removeButton()}
+                <div className='pb-3'>
+                    {blog.likes} likes{' '}
+                    <Button
+                        variant='outline-secondary rounded-pill'
+                        onClick={() => like(blog)}
+                    >
+                        like
+                    </Button>
+                </div>
+                <div className='pb-3'>added by {blog.user.name}</div>
             </div>
 
             <div>
-                <h3>comments</h3>
+                <h4 className='fw-normal pt-2'>comments</h4>
 
-                <form onSubmit={addComment}>
-                    <input
-                        value={newComment}
-                        onChange={({ target }) => setNewComment(target.value)}
-                    />
-                    <button type='submit'>add comment</button>
-                </form>
+                <Form className='d-flex' onSubmit={addComment}>
+                    <Form.Group>
+                        <Form.Control
+                            value={newComment}
+                            onChange={({ target }) =>
+                                setNewComment(target.value)
+                            }
+                        />
+                    </Form.Group>
+                    <Button
+                        variant='outline-secondary rounded-pill'
+                        type='submit'
+                    >
+                        add comment
+                    </Button>
+                </Form>
 
-                <ul>
+                <ListGroup className='py-4'>
                     {[...blog.comments].map((comment, i) => (
-                        <li key={i}>{comment}</li>
+                        <ListGroup.Item key={i}>{comment}</ListGroup.Item>
                     ))}
-                </ul>
+                </ListGroup>
+            </div>
+            <div className='pt-3 pb-3 text-center'>
+                {blog.user.username === user.username && removeButton()}
             </div>
         </div>
     )

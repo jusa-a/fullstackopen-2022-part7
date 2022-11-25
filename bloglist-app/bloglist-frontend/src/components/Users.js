@@ -1,24 +1,30 @@
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 
+import { Table } from 'react-bootstrap'
+
 const Users = () => {
     const { users } = useSelector((state) => state)
 
     return (
-        <>
-            <h2>Users</h2>
-            <table>
+        <div className='col-md-8 container'>
+            <h2 className='fw-normal'>Users</h2>
+            <Table>
                 <tbody>
                     <tr>
-                        <th></th>
-                        <th>blogs created</th>
+                        <th>Name</th>
+                        <th>Blogs created</th>
                     </tr>
+
                     {[...users]
                         .sort((a, b) => b.blogs.length - a.blogs.length)
                         .map((user) => (
                             <tr key={user.id}>
                                 <td>
-                                    <Link to={`/users/${user.id}`}>
+                                    <Link
+                                        className='text-decoration-none'
+                                        to={`/users/${user.id}`}
+                                    >
                                         {user.name}
                                     </Link>
                                 </td>
@@ -26,8 +32,8 @@ const Users = () => {
                             </tr>
                         ))}
                 </tbody>
-            </table>
-        </>
+            </Table>
+        </div>
     )
 }
 

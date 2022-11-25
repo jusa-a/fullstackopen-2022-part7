@@ -65,28 +65,33 @@ const App = () => {
 
     if (user === null) {
         return (
-            <>
-                <Notification />
+            <div className='container'>
                 <LoginForm onLogin={handleLogin} />
-            </>
+                <Notification />
+            </div>
         )
     }
 
     return (
-        <>
+        <div className='container'>
             <Menu user={user} logout={handleLogout} />
-
-            <h2>Blogs</h2>
 
             <Notification />
 
-            <Routes>
-                <Route path={'/blogs/:id'} element={<Blog notify={notify} />} />
-                <Route path={'/users/:id'} element={<User />} />
-                <Route path='/' element={<Blogs notify={notify} />} />
-                <Route path='/users' element={<Users />} />
-            </Routes>
-        </>
+            <div className='col-md-7 container mt-2 pt-5'>
+                <h2 className='fw-normal mb-4 text-center'>Blogs</h2>
+
+                <Routes>
+                    <Route
+                        path={'/blogs/:id'}
+                        element={<Blog notify={notify} />}
+                    />
+                    <Route path={'/users/:id'} element={<User />} />
+                    <Route path='/' element={<Blogs notify={notify} />} />
+                    <Route path='/users' element={<Users />} />
+                </Routes>
+            </div>
+        </div>
     )
 }
 
